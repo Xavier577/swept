@@ -1,0 +1,29 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- App Icon Background -->
+  <rect width="512" height="512" rx="114" fill="url(#gradient1)"/>
+
+  <!-- Abstract S-shaped sweep stroke -->
+  <path
+    d="M160 140
+       C 220 140, 340 160, 340 220
+       C 340 280, 180 280, 180 320
+       C 180 360, 300 380, 360 380"
+    stroke="white"
+    stroke-width="42"
+    stroke-linecap="round"
+    fill="none"
+    opacity="0.95"
+  />
+
+  <!-- Motion lines -->
+  <path d="M120 180 L80 160" stroke="white" stroke-width="12" stroke-linecap="round" opacity="0.5"/>
+  <path d="M130 220 L85 210" stroke="white" stroke-width="10" stroke-linecap="round" opacity="0.4"/>
+  <path d="M140 260 L100 255" stroke="white" stroke-width="8" stroke-linecap="round" opacity="0.3"/>
+
+  <defs>
+    <linearGradient id="gradient1" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#EC4899"/>
+    </linearGradient>
+  </defs>
+</svg>
