@@ -1,4 +1,4 @@
-# DevClean
+# Swept
 
 A macOS utility to help developers clean up their local environments by identifying and removing unused caches, build artifacts, Docker images, and other development-related files.
 
