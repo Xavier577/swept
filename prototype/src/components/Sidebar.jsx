@@ -1,103 +1,42 @@
-import {
-  LayoutDashboard,
-  Container,
-  Package,
-  Beer,
-  Hammer,
-  Code,
-  HardDrive,
-  FileText,
-  Layers,
-} from 'lucide-react';
-import { formatBytes } from '../utils/formatters';
-import { categories, mockItems } from '../data/mockData';
+import { Cylinder, FolderTree } from 'lucide-react';
+import appIcon from '../assets/app-icon.svg';
 
-const iconMap = {
-  Container,
-  Package,
-  Beer,
-  Hammer,
-  Code,
-  HardDrive,
-  FileText,
-  Layers,
-};
-
-export default function Sidebar({ activeCategory, onCategoryChange }) {
+export default function Sidebar({
+  currentView = 'explorer',
+  onNavigateToView,
+}) {
   return (
-    <aside className="w-64 min-h-screen bg-[#f6f6f6]/80 backdrop-blur-xl border-r border-black/10 flex flex-col">
-      {/* App Title */}
-      <div className="p-4 pt-6">
-        <h1 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-            <HardDrive className="w-5 h-5 text-white" />
-          </div>
-          DevClean
-        </h1>
+    <aside className="w-16 min-h-screen bg-[#f5f5f7] dark:bg-[#2c2c2e] border-r border-gray-200 dark:border-gray-700 flex flex-col items-center sidebar-with-titlebar">
+      {/* App Logo */}
+      <div className="py-3 border-b border-gray-200 dark:border-gray-700 w-full flex justify-center">
+        <img src={appIcon} alt="Swept" className="w-9 h-9 rounded-xl" />
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4">
-        {/* Overview */}
+      <nav className="flex-1 flex flex-col items-center gap-3 py-4">
         <button
-          onClick={() => onCategoryChange('overview')}
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-all duration-150 ${
-            activeCategory === 'overview'
-              ? 'bg-blue-500 text-white shadow-sm'
-              : 'text-gray-700 hover:bg-black/5'
+          onClick={() => onNavigateToView?.('cleaner')}
+          className={`w-11 h-11 flex items-center justify-center rounded-xl transition-all duration-200 ${
+            currentView === 'cleaner'
+              ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30'
+              : 'text-purple-500 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30'
           }`}
+          title="Cleaner"
         >
-          <LayoutDashboard className="w-5 h-5" />
-          <span className="font-medium">Overview</span>
+          <Cylinder className="w-5 h-5" />
         </button>
-
-        {/* Divider */}
-        <div className="h-px bg-black/10 my-3" />
-
-        {/* Category Label */}
-        <p className="px-3 text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-          Categories
-        </p>
-
-        {/* Categories */}
-        {categories.map((category) => {
-          const Icon = iconMap[category.icon];
-          const size = mockItems[category.id]?.totalSize || 0;
-          const isActive = activeCategory === category.id;
-
-          return (
-            <button
-              key={category.id}
-              onClick={() => onCategoryChange(category.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg mb-1 transition-all duration-150 ${
-                isActive
-                  ? 'bg-blue-500 text-white shadow-sm'
-                  : 'text-gray-700 hover:bg-black/5'
-              }`}
-            >
-              <Icon
-                className="w-5 h-5"
-                style={{ color: isActive ? 'white' : category.color }}
-              />
-              <span className="flex-1 text-left font-medium">{category.name}</span>
-              <span
-                className={`text-xs ${
-                  isActive ? 'text-white/80' : 'text-gray-500'
-                }`}
-              >
-                {formatBytes(size)}
-              </span>
-            </button>
-          );
-        })}
+        <button
+          onClick={() => onNavigateToView?.('explorer')}
+          className={`w-11 h-11 flex items-center justify-center rounded-xl transition-all duration-200 ${
+            currentView === 'explorer'
+              ? 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
+              : 'text-blue-500 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30'
+          }`}
+          title="File Explorer"
+        >
+          <FolderTree className="w-5 h-5" />
+        </button>
       </nav>
-
-      {/* Footer */}
-      <div className="p-4 border-t border-black/10">
-        <p className="text-xs text-gray-500 text-center">
-          Last scanned: Just now
-        </p>
-      </div>
     </aside>
   );
 }

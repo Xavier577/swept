@@ -71,7 +71,7 @@ export default function ItemList({ items, selectedItems, onToggleItem, onToggleA
 
               <span className="w-28 text-sm text-gray-500 text-right flex items-center justify-end gap-1">
                 <Clock className="w-3 h-3" />
-                {formatDate(item.lastUsed)}
+                {formatDate(item.last_used || item.lastUsed)}
               </span>
 
               <ChevronRight className="w-4 h-4 text-gray-400 ml-2" />
