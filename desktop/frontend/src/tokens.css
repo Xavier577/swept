@@ -1,0 +1,85 @@
+/* Swept's shared visual primitives. Components consume semantic tokens only. */
+:root {
+  color-scheme: light;
+  --canvas: #f6f8fb;
+  --surface: #ffffff;
+  --sidebar: #f0f3f8;
+  --text: #192a3e;
+  --secondary: #516177;
+  --muted: #778498;
+  --border: #e5eaf1;
+  --border-strong: #cad4e2;
+  --hover: #f0f4f9;
+  --track: #e7edf5;
+  --accent: #2764d8;
+  --accent-hover: #1c53bc;
+  --accent-soft: #e4edfc;
+  --accent-faint: #f3f7ff;
+  --cyan: #21a7c7;
+  --violet: #8b5cf6;
+  --focus: #8cb7f5;
+  --success: #237954;
+  --success-soft: #e9f5ee;
+  --warning: #98621c;
+  --warning-soft: #fcf3e4;
+  --danger: #c44347;
+  --danger-soft: #fceced;
+  --radius-sm: 7px;
+  --radius-md: 11px;
+  --radius-lg: 15px;
+  --shadow: 0 2px 5px #162b4610;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --canvas: #151c26;
+  --surface: #1d2633;
+  --sidebar: #18212d;
+  --text: #e5edf8;
+  --secondary: #aebdd0;
+  --muted: #8a9ab1;
+  --border: #2b3748;
+  --border-strong: #42516a;
+  --hover: #253145;
+  --track: #2b3748;
+  --accent: #6a9df4;
+  --accent-hover: #528ae7;
+  --accent-soft: #243958;
+  --accent-faint: #202e43;
+  --cyan: #67d8ed;
+  --focus: #537fb9;
+  --success: #7acba1;
+  --success-soft: #203d32;
+  --warning: #e4b86f;
+  --warning-soft: #403626;
+  --danger: #ed797e;
+  --danger-soft: #462b35;
+  --shadow: 0 2px 5px #00000012;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='system'] {
+    color-scheme: dark;
+    --canvas: #151c26;
+    --surface: #1d2633;
+    --sidebar: #18212d;
+    --text: #e5edf8;
+    --secondary: #aebdd0;
+    --muted: #8a9ab1;
+    --border: #2b3748;
+    --border-strong: #42516a;
+    --hover: #253145;
+    --track: #2b3748;
+    --accent: #6a9df4;
+    --accent-hover: #528ae7;
+    --accent-soft: #243958;
+    --accent-faint: #202e43;
+    --cyan: #67d8ed;
+    --focus: #537fb9;
+    --success: #7acba1;
+    --success-soft: #203d32;
+    --warning: #e4b86f;
+    --warning-soft: #403626;
+    --danger: #ed797e;
+    --danger-soft: #462b35;
+    --shadow: 0 2px 5px #00000012;
+  }
+}

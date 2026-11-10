@@ -1,0 +1,24 @@
+version: '3'
+tasks:
+  build:
+    desc: Build and ad-hoc sign the macOS application
+    cmds:
+      - ./scripts/build.sh
+  package:
+    deps: [build]
+    cmds:
+      - ditto -c -k --sequesterRsrc --keepParent bin/Swept.app bin/Swept-macOS.zip
+  dev:
+    cmds:
+      - wails3 dev -config build/config.yml
+  bindings:
+    cmds:
+      - wails3 generate bindings -ts -i
+  test:
+    cmds:
+      - go test -race ./internal/...
+      - npm --prefix frontend test
+      - npm --prefix frontend run check
+  run:
+    cmds:
+      - open bin/Swept.app

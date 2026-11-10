@@ -1,98 +1,96 @@
-# Swept - Brand Guidelines
+# Swept — Brand and interface system
 
-## Name
-**Swept** — A developer's tool for sweeping away clutter.
+## Identity
 
-## Tagline Options
-1. "Clean sweep for developers"
-2. "Sweep away the clutter"
-3. "Reclaim your space"
-4. "Developer cleanup, simplified"
-5. "A fresh start for your Mac"
+**Swept** makes space for the work that comes next. It is a precise, approachable developer utility: quiet when idle, clear when scanning, and explicit when changing files.
 
-## Logo Concepts
+**Primary line:** A little room to build.
+**Product description:** A local Mac cleaner for developer caches, build artifacts, and the files you no longer need.
+**Action language:** Scan my Mac → Review cleanup → Clean now.
 
-### Concept 1: Abstract Sweep
-A minimal, curved brush stroke forming an "S" shape — suggests motion, cleaning, elegance.
-```
-    ╭──╮
-   ╱    ╲
-  │      │
-   ╲    ╱
-    ╰──╯
-```
+The existing broom and sparkle mark is the canonical identity. Its blue and cyan are the foundation of the product. Earlier abstract-S, wind, and negative-space ideas are exploration history, not competing production logos.
 
-### Concept 2: Negative Space
-A rounded square with a diagonal sweep cutting through, leaving clean space behind.
+## Mark
 
-### Concept 3: Broom Minimal
-An ultra-simplified broom icon — single angled line with bristle suggestion at the bottom.
+Use the supplied light/dark rounded-square app icons. Preserve the broom's angled handle and five sweeping bristles. Cyan sparkles communicate the result of cleaning, not magic or automatic safety.
 
-### Concept 4: Wind/Motion
-Three curved parallel lines suggesting swift movement/sweeping motion (like wind).
+- Keep one-quarter of the mark's width as clear space around a standalone mark.
+- Use the complete app icon at 32 px and above. At smaller sizes, use a simple broom glyph rather than shrinking fine details.
+- Keep the wordmark in the native system sans, semibold, with slightly tight tracking. Do not add a separate display typeface.
+- Decorative sparkles are sparse. Never use them to label destructive actions or imply a file is safe to remove.
+- Pair the mark with a dark or light surface that preserves its silhouette. Do not place it on busy imagery.
 
-## Color Palette
+## Color
 
-### Primary
-- **Swept Purple**: `#8B5CF6` (violet-500) — Premium, modern, distinctive
-- **Swept Dark**: `#1c1c1e` — macOS dark mode base
+The logo's blue/cyan identity takes precedence over the original purple-first exploration. Purple remains available for category differentiation.
 
-### Secondary
-- **Accent Blue**: `#3B82F6` — Actions, links
-- **Success Green**: `#10B981` — Space reclaimed indicators
-- **Warning Amber**: `#F59E0B` — Caution states
-- **Danger Red**: `#EF4444` — Destructive actions
+| Role | Light | Dark | Use |
+| --- | --- | --- | --- |
+| Canvas | `#F6F8FB` | `#151C26` | Main workspace |
+| Surface | `#FFFFFF` | `#1D2633` | Cards and dialogs |
+| Sidebar | `#F0F3F8` | `#18212D` | Navigation |
+| Primary text | `#192A3E` | `#E5EDF8` | Headings and content |
+| Secondary text | `#516177` | `#AEBDD0` | Supporting descriptions |
+| Muted text | `#778498` | `#8A9AB1` | Metadata |
+| Action blue | `#2764D8` | `#6A9DF4` | Primary actions, selected navigation |
+| Spark cyan | `#21A7C7` | `#67D8ED` | Small accents and capacity visualization |
+| Violet | `#8B5CF6` | `#8B5CF6` | Secondary category accent |
+| Success | `#237954` | `#7ACBA1` | Completed outcomes, rebuildable labels |
+| Caution | `#98621C` | `#E4B86F` | Review-required states |
+| Destructive | `#C44347` | `#ED797E` | Permanent actions and failures |
 
-### Neutrals
-- **Light BG**: `#F5F5F7` — macOS light mode
-- **Dark BG**: `#1C1C1E` — macOS dark mode
-- **Card Light**: `#FFFFFF`
-- **Card Dark**: `#2C2C2E`
+Use semantic variables from `desktop/frontend/src/tokens.css`, never copied colors in individual view styles. Category colors identify tools; they do not communicate cleanup risk. Pair status colors with words/icons.
 
-## Typography
+The only major gradient is the blue-to-cyan disk-capacity visualization. Surfaces remain quiet. Avoid purple/pink gradient hero panels and decorative glow around controls.
 
-### Primary Font
-**SF Pro** (system-ui) — Native macOS feel
-- Headings: SF Pro Display (semibold)
-- Body: SF Pro Text (regular)
-- Monospace: SF Mono (for paths/technical info)
+## Typography and spacing
 
-### Font Weights
-- Regular: 400
-- Medium: 500
-- Semibold: 600
-- Bold: 700
+- Native SF/system stack for all UI. Native monospace for paths and command output.
+- Page heading: 30 px / 1.2, semibold, −1.1 px tracking.
+- Section heading: 15–16 px, semibold.
+- Main UI text: 12–13 px; compact metadata: 10–11 px. Reserve 9 px for nonessential sidebar labels and supplementary details.
+- Metrics use tabular figures where useful. Format binary sizes as KiB/MiB/GiB; do not label binary units as decimal GB.
+- Spacing uses a 4 px foundation with 8, 12, 16, 24, and 32 px steps. Keep screen margins and repeated row padding consistent.
+- Radius: 7 px for controls, 11 px for compact panels, 15 px for cards, 18 px for dialogs.
+- Shadows are subtle. Borders and spacing establish hierarchy before elevation.
 
-## App Icon Ideas
+## Reusable primitives
 
-### Style Direction
-- Rounded square (macOS Big Sur+ style)
-- Gradient background (purple to pink, matching current UI)
-- White or light icon symbol on gradient
-- Subtle shadow for depth
+`UiButton`, `UiCard`, `UiBadge`, `UiField`, and `UiDialog` define the shared behavior and presentation. Feature components compose these primitives.
 
-### Symbol Options
-1. Stylized broom/brush
-2. Sparkles (current cleaner icon) + sweep motion
-3. Abstract "S" with motion lines
-4. Minimalist wind/sweep curves
+- **Buttons:** primary blue for the next useful step, neutral for alternatives, ghost for tertiary actions, red only for confirmed permanent removal. Labels contain verbs. Busy states disable duplicate actions.
+- **Fields:** visible labels, native controls, useful hints, persistent focus indication. Paths are selectable text.
+- **Cards:** common surface, border, padding, and radii. Clickable category cards look interactive without turning every panel into a button.
+- **Badges:** Rebuildable, Review first, Personal data, Protected. “Rebuildable” does not mean unused or consequence-free.
+- **Dialogs:** native modal focus handling, descriptive heading, complete review list, explicit result of each action, non-destructive escape/cancel. During cleanup, closing is disabled.
+- **File rows:** checkbox, identity/path, reason, modified date, size, and Show in Finder. Avoid hiding the information needed to make a cleanup decision.
 
-## Voice & Tone
-- **Confident**: "Reclaim 45GB of space"
-- **Friendly**: "Let's clean up your dev environment"
-- **Clear**: Direct actions, no jargon
-- **Reassuring**: "Items moved to Trash" (not permanently deleted by default)
+Shared feature components include ItemTable, CleanupReview, and ScanProgress. New views reuse these rather than recreating similar controls with local styling.
 
-## Iconography Style
-- Lucide icons (current)
-- 24px default size
-- 1.5px stroke weight
-- Rounded caps and joins
+## Experience
 
----
+The overview answers: how much space is available, what a scan found, and where to look next. A first-run screen offers one useful action without requiring Full Disk Access before any value is available.
 
-## Next Steps
-1. Finalize logo design
-2. Create app icon in required sizes (16, 32, 128, 256, 512, 1024)
-3. Update app name in configs
-4. Design splash/onboarding screens
+Categories explain developer-specific content. Space explorer supports deliberate discovery of personal files. Preferences control project roots, exclusions, and appearance. History records per-item filesystem outcomes.
+
+- Start scans on request. Show real progress, never a fabricated percentage.
+- Never preselect data. Explicitly selecting rebuildable items is allowed.
+- Show incomplete scans and permission failures as incomplete, not as zero usage.
+- Distinguish estimated size, removed file size, and observed free-space change.
+- Permanent cleanup is the primary review mode. It requires acknowledgement; personal data requires typing CLEAN. Optional Trash uses its own description and action label.
+- Tool-owned storage uses the owning tool with a separate review. Docker volumes and simulator data receive explicit data-loss wording.
+- Do not describe modification time as last use, or all detected bytes as junk.
+
+## Voice
+
+Be calm, specific, and brief. Speak about the user's files and choices rather than implementation details.
+
+Prefer: “Your first sweep starts here.” “Select the items you no longer need.” “This item changed since the scan. Scan again.” “Some items need attention.”
+
+Avoid: “Your Mac is dangerously cluttered.” “100% safe cleanup.” “We found 45 GB of junk.” “Space reclaimed” when files only moved to Trash.
+
+## Accessibility and motion
+
+Use native controls, keyboard-visible focus, labelled icon buttons, and readable contrast. Keep navigation and action areas stable while scanning. Include risk words as well as colors. Dialogs trap focus through the browser's native modal behavior. Honor reduced-motion preferences. Animation is reserved for indeterminate work and small state transitions.
+
+Treat contrast, text scaling, keyboard navigation, and minimum-window layout as continuing release checks. Do not claim an accessibility certification without an audit.

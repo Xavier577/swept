@@ -1,0 +1,29 @@
+{
+  "name": "swept-ui",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:dev": "vue-tsc --noEmit && vite build --mode development",
+    "build": "vue-tsc --noEmit && vite build",
+    "check": "vue-tsc --noEmit",
+    "test": "playwright test",
+    "preview": "vite preview",
+    "format": "prettier --write src e2e *.ts *.json",
+    "format:check": "prettier --check src e2e *.ts *.json"
+  },
+  "dependencies": {
+    "@lucide/vue": "^1.70.0",
+    "@wailsio/runtime": "3.0.0",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.0",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "prettier": "^3.9.10",
+    "typescript": "~5.9.3",
+    "vite": "^8.2.4",
+    "vue-tsc": "^3.3.12"
+  }
+}
