@@ -36,9 +36,13 @@ function date(value: string) {
     <template v-if="current">
       <div class="current-release">
         <strong>{{ current.tag }}</strong
-        ><span class="release-badge">{{
-          current.prerelease ? "Preview release" : "Latest release"
-        }}</span>
+        ><span
+          :class="[
+            'release-badge',
+            { 'release-badge--preview': current.prerelease },
+          ]"
+          >{{ current.prerelease ? "Preview release" : "Latest release" }}</span
+        >
       </div>
       <p class="release-date">Released {{ date(current.publishedAt) }}</p>
       <DownloadLinks :downloads="current.downloads" :version="current.tag" />

@@ -25,6 +25,10 @@ function size(bytes: number) {
         <ArrowDownToLine :size="17" /> {{ labels[file.architecture] }}
         <span>{{ size(file.size) }}</span>
       </ActionLink>
+      <p v-if="file.unnotarized" class="download-warning">
+        Not notarized by Apple. macOS may block the first launch.
+        <a href="https://support.apple.com/en-us/102445">Installation help</a>
+      </p>
       <small v-if="file.architecture === 'universal'"
         >For Apple Silicon and Intel Macs</small
       >

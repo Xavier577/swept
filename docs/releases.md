@@ -24,7 +24,7 @@ SWEPT_ARCH=universal SWEPT_VERSION=0.2.0 ./scripts/build.sh
 SWEPT_VERSION=0.2.0 ./scripts/package.sh --local
 ```
 
-The result is `bin/release/Swept-0.2.0-universal-local-test.dmg`, with a SHA-256 file and JSON size report. It is ad-hoc signed and not notarized. The public release path never silently falls back to this mode.
+The result is `bin/release/Swept-0.2.0-universal-local-test.dmg`, with a SHA-256 file and JSON size report. It is ad-hoc signed and not notarized. Stable releases never silently fall back to this mode. Preview tags explicitly create ad-hoc signed, unnotarized public builds.
 
 The version passed to packaging must match the built app. Packaging verifies both architectures, refuses to replace an existing DMG, and measures the final compressed download and installed files. Do not publish a fixed size estimate on the website; it reads the uploaded asset size.
 
@@ -51,10 +51,24 @@ Keep these out of commits, logs, chat, and frontend variables. The release job i
 
 Apple: [Developer ID certificates](https://developer.apple.com/help/account/certificates/create-developer-id-certificates/), [notarization](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution).
 
+## Preview releases without Apple enrollment
+
+Use a `vX.Y.Z-beta.N` tag. The same tests run, then the Release workflow creates a Universal DMG without Developer ID signing or notarization. The filename ends in `-unnotarized.dmg`; the disk image includes installation guidance, and both GitHub and the website label it as a preview. The website shows the notarization warning alongside each download. A preview never becomes the recommended stable release when a stable release exists.
+
+For a local packaging check:
+
+```sh
+cd desktop
+SWEPT_ARCH=universal SWEPT_VERSION=0.2.0 SWEPT_RELEASE_TAG=v0.2.0-beta.1 ./scripts/build.sh
+SWEPT_VERSION=0.2.0 SWEPT_RELEASE_TAG=v0.2.0-beta.1 ./scripts/package.sh --preview
+```
+
+Publish the draft only after checking the uploaded DMG and checksum. Users may need Apple's per-app **Open Anyway** flow. Do not tell them to disable Gatekeeper or remove quarantine globally.
+
 ## Cut a release
 
 1. Merge the intended changes. Update the source version in `desktop/build/config.yml`, `desktop/build/darwin/Info.plist`, and the frontend package metadata together.
-2. Tag that commit `vX.Y.Z` and push the tag. The Release workflow accepts stable version tags only. A manual rerun must also select that tag.
+2. Tag that commit `vX.Y.Z` and push the tag. Stable tags use the signed/notarized path; `vX.Y.Z-beta.N` tags use the explicit preview path. A manual rerun must also select that tag.
 3. The workflow runs all checks, builds the Universal app, signs it with hardened runtime, notarizes and staples the app, creates the DMG, then signs, notarizes, staples, and verifies the DMG. It generates checksums and exact sizes.
 4. It creates a **draft GitHub Release** with the DMG, checksum, size metadata, and release notes. An existing release is never overwritten on a rerun.
 5. Complete the package checks below. Edit the release notes to describe user-visible changes, then publish the draft. Publishing updates the website automatically.
@@ -76,7 +90,7 @@ Use the actual downloaded draft DMG, not a dev server:
 
 ## Current external setup
 
-The workflows and local verification can be completed without an Apple account. A notarized public release still needs enrollment, the secrets above, successful GitHub-hosted runs, and the minimum-OS/native Intel package checks. No signing identity was installed on the development Mac when this pipeline was added.
+The workflows and local verification can be completed without an Apple account. A notarized stable release still needs enrollment and the secrets above. Preview releases do not require these credentials. Native builds, tests, and launch passed on both macOS 15 architectures in [GitHub CI](https://github.com/Xavier577/swept/actions/runs/42741151341); macOS 13 and 14 remain unverified. No signing identity was installed on the development Mac when this pipeline was added.
 
 ## Local verification — 10 November 2026
 
@@ -84,4 +98,4 @@ On the development Apple Silicon Mac: Go race tests and vet passed, all 14 deskt
 
 The Universal local-test DMG is 9.17 MiB (20.11 MiB installed files). Both Mach-O slices declare macOS 13.0. Image verification, checksum verification, app-signature verification, and native startup passed. The app copied from the DMG was checked through computer use for light/dark switching, Home scan cancellation, successful retry, and multi-item review. No user files were deleted.
 
-Not yet verified: Developer ID signing/notarization, native Intel and Ventura execution, GitHub-hosted workflow runs, and first public download. The configured SSH remote rejected authentication during the push-readiness check; the workflow changes are still local.
+Later verification: [GitHub CI](https://github.com/Xavier577/swept/actions/runs/42741151341) passed on Apple Silicon and Intel macOS 15, including native launch. Developer ID signing/notarization and macOS 13/14 execution remain unverified. GitHub pushes use HTTPS with GitHub CLI authentication; commits remain GPG-signed.

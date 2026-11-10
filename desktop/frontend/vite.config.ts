@@ -7,7 +7,9 @@ import packageInfo from './package.json' with { type: 'json' }
 export default defineConfig({
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(
-      process.env.SWEPT_VERSION || packageInfo.version,
+      process.env.SWEPT_RELEASE_TAG?.replace(/^v/, '') ||
+        process.env.SWEPT_VERSION ||
+        packageInfo.version,
     ),
   },
   // Ventura ships with Safari 16; avoid requiring a newer WebKit for startup.

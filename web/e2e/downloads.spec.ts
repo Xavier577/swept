@@ -63,3 +63,20 @@ for (const theme of ["light", "dark"]) {
     ).toBeLessThanOrEqual(390);
   });
 }
+
+test("the first preview has a direct download and explains the macOS launch warning", async ({
+  page,
+}) => {
+  await page.goto("/e2e/downloads.html?preview");
+  const card = page.locator(".download-card");
+  await expect(
+    card.getByText("Preview release", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    card.getByRole("link", { name: /Download Swept v0.2.0-beta.1/ }),
+  ).toBeVisible();
+  await expect(card.getByText(/Not notarized by Apple/)).toBeVisible();
+  await expect(
+    card.getByRole("link", { name: "Installation help" }),
+  ).toHaveAttribute("href", "https://support.apple.com/en-us/102445");
+});

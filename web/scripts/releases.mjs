@@ -50,6 +50,7 @@ export async function fetchCatalog(request = fetch, token = "") {
           url: asset.browser_download_url,
           size: asset.size,
           architecture: architecture(asset.name),
+          unnotarized: /-unnotarized\.dmg$/i.test(asset.name),
         }));
       const order = { universal: 0, arm64: 1, intel: 2, unknown: 3 };
       downloads.sort(

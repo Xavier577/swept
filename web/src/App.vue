@@ -147,7 +147,7 @@ const faqs = [
   {
     question: "Will it work on my Mac?",
     answer:
-      "We are preparing a Universal download for Apple Silicon and 64-bit Intel Macs. Both architectures compile. The oldest supported macOS version is still being verified and will be listed with the first public release.",
+      "The Universal download runs on Apple Silicon and 64-bit Intel Macs. Builds, tests, and native launch pass on macOS 15 for both architectures. It targets macOS 13 and later; macOS 13 and 14 still need verification. Check the release notes for compatibility details.",
   },
   {
     question: "Do I need Full Disk Access?",

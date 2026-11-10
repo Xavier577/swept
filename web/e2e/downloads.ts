@@ -22,6 +22,7 @@ const catalog: ReleaseCatalog = {
           name: "Swept-test-universal.dmg",
           url: "/e2e/Swept-test-universal.dmg",
           size: 9615442,
+          unnotarized: false,
           architecture: "universal",
         },
       ],
@@ -36,6 +37,7 @@ const catalog: ReleaseCatalog = {
           name: "Swept-test-intel.dmg",
           url: "/e2e/Swept-test-intel.dmg",
           size: 5284823,
+          unnotarized: false,
           architecture: "intel",
         },
       ],
@@ -55,7 +57,22 @@ createApp({
       h(ReleaseDownloads, {
         catalog: params.has("empty")
           ? { latestTag: null, releases: [] }
-          : catalog,
+          : params.has("preview")
+            ? {
+                latestTag: null,
+                releases: [
+                  {
+                    ...catalog.releases[1],
+                    tag: "v0.2.0-beta.1",
+                    prerelease: true,
+                    downloads: catalog.releases[1].downloads.map((file) => ({
+                      ...file,
+                      unnotarized: true,
+                    })),
+                  },
+                ],
+              }
+            : catalog,
       }),
     ]),
 }).mount("#app");

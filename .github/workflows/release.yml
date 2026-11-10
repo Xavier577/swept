@@ -13,15 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      preview: ${{ steps.version.outputs.preview }}
     steps:
-      - name: Require a stable version tag
+      - name: Validate the release tag
         id: version
         env:
           TAG: ${{ github.ref_name }}
           REF_TYPE: ${{ github.ref_type }}
         run: |
-          [[ "$REF_TYPE" == tag && "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo 'Run from a vX.Y.Z tag'; exit 1; }
-          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          [[ "$REF_TYPE" == tag && "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-beta\.[1-9][0-9]*)?$ ]] || { echo 'Run from a vX.Y.Z or vX.Y.Z-beta.N tag'; exit 1; }
+          version=${TAG#v}
+          echo "version=${version%%-*}" >> "$GITHUB_OUTPUT"
+          if [[ "$TAG" == *-beta.* ]]; then echo 'preview=true' >> "$GITHUB_OUTPUT"; else echo 'preview=false' >> "$GITHUB_OUTPUT"; fi
   checks:
     needs: validate
     uses: ./.github/workflows/checks.yml
@@ -36,11 +39,14 @@ jobs:
       SWEPT_VERSION: ${{ needs.validate.outputs.version }}
       SWEPT_BUILD_NUMBER: ${{ github.run_number }}
       SWEPT_ARCH: universal
+      SWEPT_RELEASE_TAG: ${{ github.ref_name }}
+      PREVIEW: ${{ needs.validate.outputs.preview }}
       APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
       NOTARY_PROFILE: swept-release
     steps:
       - uses: actions/checkout@v7
       - name: Check signing configuration
+        if: needs.validate.outputs.preview != 'true'
         env:
           CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -63,6 +69,7 @@ jobs:
       - run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0
       - run: desktop/scripts/build.sh
       - name: Import signing credentials into a temporary keychain
+        if: needs.validate.outputs.preview != 'true'
         env:
           CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
           CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -84,20 +91,32 @@ jobs:
           xcrun notarytool store-credentials "$NOTARY_PROFILE" --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD" --keychain "$keychain"
           security default-keychain -d user -s "$keychain"
           rm "$RUNNER_TEMP/certificate.p12"
-      - name: Sign, notarize, staple and verify the DMG
-        run: desktop/scripts/package.sh
+      - name: Package and verify the DMG
+        run: |
+          if [[ "$PREVIEW" == true ]]; then
+            desktop/scripts/package.sh --preview
+          else
+            desktop/scripts/package.sh
+          fi
       - name: Prepare release notes
         run: |
-          python3 - <<'PY'
-          import json, os, pathlib
-          version = os.environ['SWEPT_VERSION']
-          data = json.loads(pathlib.Path(f'desktop/bin/release/Swept-{version}-universal.json').read_text())
-          pathlib.Path('release-notes.md').write_text(
-              f"Universal build for Apple Silicon and Intel Macs. Targets macOS 13 or later.\n\n"
-              f"Download: {data['downloadBytes']/1024**2:.2f} MiB. Installed files: {data['installedBytes']/1024**2:.2f} MiB.\n\n"
-              "Open the DMG and drag Swept to Applications. Signed with Developer ID and notarized by Apple.\n\n"
-              "The SHA-256 file verifies the download. Review cleanup selections carefully; permanent removal cannot be undone.\n")
-          PY
+          python3 - <<'PYTHON'
+          import json, pathlib
+          metadata = next(pathlib.Path('desktop/bin/release').glob('*.json'))
+          data = json.loads(metadata.read_text())
+          preview = not data['notarized']
+          intro = "Swept is a local macOS storage cleaner for developers.\n\n"
+          features = "## What you can do\n\n- Scan developer caches and build artifacts, with paths, sizes, and classifications.\n- Select files across categories and review one cleanup.\n- Browse folders by size and inspect their contents.\n- Review individual Docker resources and clean selected items together.\n- Switch between light and dark themes.\n\n"
+          compatibility = "## Compatibility\n\nUniversal build for Apple Silicon and Intel Macs. Targets macOS 13+. CI builds, behavioral tests, and native launch pass on macOS 15 for both architectures. macOS 13 and 14 still need verification.\n\n"
+          installation = "## Install\n\nOpen the DMG and drag Swept to Applications. "
+          if preview:
+              installation += "**This preview is ad-hoc signed, not Developer ID-signed or notarized by Apple.** macOS may block its first launch. If you trust this download, open System Settings > Privacy & Security and use Open Anyway after trying to launch it. [Apple's instructions](https://support.apple.com/en-us/102445).\n\n"
+          else:
+              installation += "Signed with Developer ID and notarized by Apple.\n\n"
+          sizes = f"Download: {data['downloadBytes']/1024**2:.2f} MiB. Installed files: {data['installedBytes']/1024**2:.2f} MiB. The SHA-256 file verifies the downloaded DMG.\n\n"
+          limits = "## Before cleaning\n\nReview the selected paths. Permanent cleanup cannot be undone; Move to Trash is a separate option. Close related apps and builds. Docker inspection and cleanup need a running local engine. Managed-tool cleanup results currently appear in their panels; persistent history covers filesystem cleanup.\n"
+          pathlib.Path('release-notes.md').write_text(intro + features + compatibility + installation + sizes + limits)
+          PYTHON
       - name: Create a draft release with verified assets
         env:
           GH_TOKEN: ${{ github.token }}
@@ -108,9 +127,11 @@ jobs:
             echo 'This release already exists. Review it in GitHub instead of overwriting its assets.'
             exit 1
           fi
-          gh release create "$TAG" desktop/bin/release/* --repo "$GITHUB_REPOSITORY" --verify-tag --draft --title "Swept $TAG" --notes-file release-notes.md --generate-notes
+          flags=()
+          if [[ "$PREVIEW" == true ]]; then flags+=(--prerelease); fi
+          gh release create "$TAG" "${flags[@]}" desktop/bin/release/* --repo "$GITHUB_REPOSITORY" --verify-tag --draft --title "Swept $TAG" --notes-file release-notes.md --generate-notes
       - name: Remove temporary signing credentials
-        if: always()
+        if: always() && needs.validate.outputs.preview != 'true'
         run: |
           security default-keychain -d user -s login.keychain-db || true
           security list-keychains -d user -s login.keychain-db || true

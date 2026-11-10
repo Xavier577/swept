@@ -87,6 +87,7 @@ test("downloads point to completed DMG assets, without mislabelling unknown arch
     {
       name: "Swept.dmg",
       architecture: "unknown",
+      unnotarized: false,
       size: 9613843,
       url: `${repo}/download/v0.3.0/Swept.dmg`,
     },
@@ -111,4 +112,25 @@ test("a repository without published releases produces the real empty state", as
     url.endsWith("/latest") ? response({}, 404) : response([]),
   );
   assert.deepEqual(catalog, { latestTag: null, releases: [] });
+});
+
+test("unnotarized preview downloads stay available when there is no stable release", async () => {
+  const catalog = await fetchCatalog(async (url) =>
+    url.endsWith("/latest")
+      ? response({}, 404)
+      : response([
+          release("v0.2.0-beta.1", {
+            prerelease: true,
+            assets: [
+              asset(
+                "Swept-0.2.0-beta.1-universal-unnotarized.dmg",
+                "v0.2.0-beta.1",
+              ),
+            ],
+          }),
+        ]),
+  );
+  assert.equal(catalog.latestTag, null);
+  assert.equal(catalog.releases[0].downloads[0].unnotarized, true);
+  assert.equal(catalog.releases[0].downloads[0].architecture, "universal");
 });

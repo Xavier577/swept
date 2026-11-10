@@ -2,6 +2,7 @@ export interface Download {
   name: string;
   url: string;
   size: number;
+  unnotarized: boolean;
   architecture: "universal" | "arm64" | "intel" | "unknown";
 }
 

@@ -19,7 +19,7 @@ Buttons link directly to uploaded GitHub DMG assets. File sizes come from the as
 
 The Website workflow syncs before deploying on `main`, a release change, or a manual run. Upload every asset before publishing the release. A failed API request fails the build and leaves the live site intact. No token reaches the browser. Pull requests use the checked-in catalog and separate fixtures.
 
-The Release workflow creates a signed, notarized Universal DMG in a draft release. Publish the reviewed draft through GitHub to update Pages. A workflow publishing with `GITHUB_TOKEN` must explicitly dispatch `pages.yml`; its release event will not start another workflow. See [release setup](../docs/releases.md).
+Stable tags create a signed, notarized Universal DMG in a draft release. Beta tags create an explicitly unnotarized preview. Files ending in `-unnotarized.dmg` show a launch warning and installation help beside the download. Publish the reviewed draft through GitHub to update Pages. A workflow publishing with `GITHUB_TOKEN` must explicitly dispatch `pages.yml`; its release event will not start another workflow. See [release setup](../docs/releases.md).
 
 ```sh
 npm test              # release pagination, filtering, and API failures
