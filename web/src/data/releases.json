@@ -1,4 +1,20 @@
 {
   "latestTag": null,
-  "releases": []
+  "releases": [
+    {
+      "tag": "v0.2.0-beta.1",
+      "publishedAt": "2026-11-10T02:42:48Z",
+      "prerelease": true,
+      "notesUrl": "https://github.com/Xavier577/swept/releases/tag/v0.2.0-beta.1",
+      "downloads": [
+        {
+          "name": "Swept-0.2.0-beta.1-universal-unnotarized.dmg",
+          "url": "https://github.com/Xavier577/swept/releases/download/v0.2.0-beta.1/Swept-0.2.0-beta.1-universal-unnotarized.dmg",
+          "size": 9643455,
+          "architecture": "universal",
+          "unnotarized": true
+        }
+      ]
+    }
+  ]
 }

@@ -77,7 +77,7 @@ The draft is the review point for the actual installer. A failed build, signing 
 
 If a future workflow publishes releases with `GITHUB_TOKEN`, explicitly dispatch `pages.yml` afterwards: token-generated release events do not trigger another workflow. Publishing the draft through GitHub's UI does trigger Website.
 
-## Package checks before publishing
+## Package checks before stable publication
 
 Use the actual downloaded draft DMG, not a dev server:
 
@@ -99,3 +99,9 @@ On the development Apple Silicon Mac: Go race tests and vet passed, all 14 deskt
 The Universal local-test DMG is 9.17 MiB (20.11 MiB installed files). Both Mach-O slices declare macOS 13.0. Image verification, checksum verification, app-signature verification, and native startup passed. The app copied from the DMG was checked through computer use for light/dark switching, Home scan cancellation, successful retry, and multi-item review. No user files were deleted.
 
 Later verification: [GitHub CI](https://github.com/Xavier577/swept/actions/runs/42741151341) passed on Apple Silicon and Intel macOS 15, including native launch. Developer ID signing/notarization and macOS 13/14 execution remain unverified. GitHub pushes use HTTPS with GitHub CLI authentication; commits remain GPG-signed.
+
+## First public preview
+
+[v0.2.0-beta.1](https://github.com/Xavier577/swept/releases/tag/v0.2.0-beta.1) is published. The Universal DMG is 9.20 MiB; installed app files total 20.15 MiB. It is ad-hoc signed and not notarized by Apple.
+
+The [release workflow](https://github.com/Xavier577/swept/actions/runs/42743768971) passed on both architectures and created the uploaded assets. Before publication, the downloaded DMG passed SHA-256, image integrity, app-signature, and architecture verification. Its app launched locally and displayed the beta version correctly. macOS 13 and 14 remain unverified; the release notes state this explicitly.

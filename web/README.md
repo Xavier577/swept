@@ -27,7 +27,7 @@ npm run test:ui       # real browser downloads, empty state, mobile layouts
 npm run format:check
 ```
 
-Browser tests use installed Chrome locally and Playwright Chromium in CI. `/e2e/downloads.html` contains clearly labelled sample releases and placeholder downloads. It is excluded from `dist`; never copy it into the public site. The checked-in catalog remains empty until real releases exist.
+Browser tests use installed Chrome locally and Playwright Chromium in CI. `/e2e/downloads.html` contains clearly labelled sample releases and placeholder downloads. It is excluded from `dist`; never copy it into the public site. The checked-in catalog provides a snapshot of published releases; deployment refreshes it from GitHub.
 
 ## Screenshots
 
