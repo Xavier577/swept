@@ -122,7 +122,14 @@ jobs:
               installation += "**This release is ad-hoc signed, not Developer ID-signed or notarized by Apple.** macOS may block its first launch. If you trust this download, open System Settings > Privacy & Security and use Open Anyway after trying to launch it. [Apple's instructions](https://support.apple.com/en-us/102445).\n\n"
           else:
               installation += "Signed with Developer ID and notarized by Apple.\n\n"
-          installation += "Alternatively, use the [Terminal installer](https://xavier577.github.io/swept/#download). It verifies the download and asks before making a Swept-only security exception for unnotarized builds.\n\n"
+          command = f"curl -fsSL https://xavier577.github.io/swept/install.sh | /bin/bash -s -- --version {data['version']}"
+          if unnotarized:
+              command += " --unnotarized"
+          installation += f"### Install from Terminal\n\nQuit Swept first if it’s running.\n\n```sh\n{command}\n```\n\n"
+          installation += "Installs into `~/Applications` without sudo. Checks the download’s SHA-256 and the app’s signature. "
+          if unnotarized:
+              installation += "Asks before removing Swept’s quarantine flag. This skips Apple’s downloaded-app check for Swept only; Gatekeeper stays enabled for other apps. "
+          installation += "[Read the installer](https://github.com/Xavier577/swept/blob/main/web/public/install.sh) before running it.\n\n"
           sizes = f"Download: {data['downloadBytes']/1024**2:.2f} MiB. Installed files: {data['installedBytes']/1024**2:.2f} MiB. The SHA-256 file verifies the downloaded DMG.\n\n"
           limits = "## Before cleaning\n\nReview the selected paths. Permanent cleanup cannot be undone; Move to Trash is a separate option. Close related apps and builds. Docker inspection and cleanup need a running local engine. Managed-tool cleanup results currently appear in their panels; persistent history covers filesystem cleanup.\n"
           pathlib.Path('release-notes.md').write_text(intro + features + compatibility + installation + sizes + limits)

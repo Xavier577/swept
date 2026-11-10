@@ -10,6 +10,14 @@ Swept finds developer caches and generated artifacts, explains what they contain
 
 Prefer GitHub? [Download directly from GitHub Releases](https://github.com/Xavier577/swept/releases).
 
+Or install **0.2.0** from Terminal. Quit Swept first if it’s running.
+
+```sh
+curl -fsSL https://xavier577.github.io/swept/install.sh | /bin/bash -s -- --version v0.2.0 --unnotarized
+```
+
+Installs into `~/Applications` without sudo. Checks the download’s SHA-256 and the app’s signature, and asks before removing Swept’s quarantine flag. This skips Apple’s downloaded-app check for Swept only; Gatekeeper stays enabled for other apps. [Read the installer](https://github.com/Xavier577/swept/blob/main/web/public/install.sh) before running it.
+
 ## Build from source
 
 Requirements: macOS 13+, Go 1.26+, Node.js 22.12+ (or a current LTS), Xcode Command Line Tools, and Wails 3.0.0.
