@@ -17,7 +17,7 @@ GitHub Releases is the source of truth. `npm run releases:sync` fetches every pu
 
 Buttons link directly to uploaded GitHub DMG assets. File sizes come from the assets. Name installers with `universal`, `arm64`, or `intel` so the page can identify the architecture. Unknown names retain their filename and do not claim compatibility.
 
-The Website workflow syncs before deploying on `main`, a release change, or a manual run. Upload every asset before publishing the release. A failed API request fails the build and leaves the live site intact. No token reaches the browser. Pull requests use the checked-in catalog and separate fixtures.
+The Website workflow syncs before deploying on `main` or a manual run. Release events request a new run from `main`, so tag-based releases respect the Pages environment’s branch protection. Upload every asset before publishing the release. A failed API request fails the build and leaves the live site intact. No token reaches the browser. Pull requests use the checked-in catalog and separate fixtures.
 
 Stable tags create a signed, notarized Universal DMG in a draft release. Beta tags create an explicitly unnotarized preview. Files ending in `-unnotarized.dmg` show a launch warning and installation help beside the download. Publish the reviewed draft through GitHub to update Pages. A workflow publishing with `GITHUB_TOKEN` must explicitly dispatch `pages.yml`; its release event will not start another workflow. See [release setup](../docs/releases.md).
 
