@@ -4,6 +4,8 @@ import { Plus, X, ShieldCheck, Sun, Moon, Monitor } from '@lucide/vue'
 import type { Settings, Status } from '../../bindings/swept/internal/cleaner/models'
 import UiButton from '../components/ui/UiButton.vue'
 import UiCard from '../components/ui/UiCard.vue'
+
+const appVersion = import.meta.env.VITE_APP_VERSION
 const props = defineProps<{
   status: Status
   busy: boolean
@@ -120,7 +122,7 @@ function remove(kind: 'projectRoots' | 'excludedPaths', path: string) {
       <UiButton @click="emit('permissions')">Open Full Disk Access settings</UiButton></UiCard
     >
     <p class="fine-print">
-      Swept 0.2.0 · Built with Wails, Go, and Vue. All scanning and cleanup run locally.
+      Swept {{ appVersion }} · Built with Wails, Go, and Vue. All scanning and cleanup run locally.
     </p>
   </div>
 </template>

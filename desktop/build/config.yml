@@ -15,7 +15,7 @@ dev_mode:
     watched_extension: ['*.go']
     git_ignore: true
   executes:
-    - cmd: wails3 generate bindings -ts -i && env CGO_ENABLED=1 MACOSX_DEPLOYMENT_TARGET=12.0 CGO_CFLAGS=-mmacosx-version-min=12.0 CGO_LDFLAGS=-mmacosx-version-min=12.0 go build -o bin/Swept-dev .
+    - cmd: wails3 generate bindings -ts -i && env CGO_ENABLED=1 MACOSX_DEPLOYMENT_TARGET=13.0 CGO_CFLAGS=-mmacosx-version-min=13.0 CGO_LDFLAGS=-mmacosx-version-min=13.0 go build -o bin/Swept-dev .
       type: blocking
     - cmd: npm --prefix frontend run dev
       type: background

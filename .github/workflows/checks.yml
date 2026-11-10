@@ -1,0 +1,84 @@
+name: Checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_call:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  desktop:
+    name: Desktop (${{ matrix.runner }})
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "13.0"
+      CGO_CFLAGS: -mmacosx-version-min=13.0
+      CGO_LDFLAGS: -mmacosx-version-min=13.0
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: desktop/go.mod
+          cache-dependency-path: desktop/go.sum
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: desktop/frontend/package-lock.json
+      - run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0
+      - run: ./scripts/build.sh
+      - name: Formatting
+        run: |
+          test -z "$(gofmt -l $(git ls-files '*.go'))"
+          npm --prefix frontend run format:check
+      - run: go test -race ./...
+      - run: go vet ./...
+      - name: Generated bindings stay current
+        run: git diff --exit-code -- frontend/bindings
+      - run: npx --prefix frontend playwright install chromium
+      - run: npm --prefix frontend test
+      - name: Launch the native app
+        run: ./scripts/smoke.sh
+      - name: Save failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-failure-${{ matrix.runner }}
+          path: |
+            desktop/frontend/test-results/
+            desktop/bin/launch.log
+          retention-days: 7
+  website:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run format:check
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:ui
+      - run: npm run build
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-failure
+          path: web/test-results/
+          retention-days: 7

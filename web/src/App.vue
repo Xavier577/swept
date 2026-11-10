@@ -4,7 +4,6 @@ import {
   ArrowDown,
   ArrowDownToLine,
   ArrowUpRight,
-  Check,
   ChevronDown,
   Code2,
   Container,
@@ -12,7 +11,6 @@ import {
   FolderSearch,
   GitFork,
   Hammer,
-  HardDrive,
   LockKeyhole,
   Moon,
   Package,
@@ -25,7 +23,10 @@ import {
 import ActionLink from "./components/ActionLink.vue";
 import AppShot from "./components/AppShot.vue";
 import SectionIntro from "./components/SectionIntro.vue";
-import { release } from "./release";
+import ReleaseDownloads from "./components/ReleaseDownloads.vue";
+import catalogData from "./data/releases.json";
+import type { ReleaseCatalog } from "./releases";
+const catalog = catalogData as ReleaseCatalog;
 
 const icon = `${import.meta.env.BASE_URL}icon.svg`;
 const repo = "https://github.com/Xavier577/swept";
@@ -383,42 +384,7 @@ onBeforeUnmount(() => dialog.value?.close());
         <h2 id="download-title">Your next project<br />could use the space.</h2>
         <p>A small app for the things that add up.</p>
       </div>
-      <div class="download-card">
-        <div class="download-card-heading">
-          <span class="download-symbol"><HardDrive :size="25" /></span>
-          <div>
-            <h3>Swept for Mac</h3>
-            <p>One Universal app. Apple Silicon + Intel.</p>
-          </div>
-        </div>
-        <template v-if="release.downloadUrl"
-          ><ActionLink :href="release.downloadUrl"
-            ><ArrowDownToLine :size="18" /> Download Swept</ActionLink
-          >
-          <p class="download-meta">
-            {{ release.version }} · {{ release.size }} · macOS
-            {{ release.minimumMacOS }}+
-          </p></template
-        >
-        <template v-else
-          ><div class="release-status">
-            <span class="status-dot" /><strong
-              >Getting ready for the first release</strong
-            >
-          </div>
-          <p class="release-description">
-            The public download will be here once signing and compatibility
-            checks are complete.
-          </p>
-          <ActionLink :href="release.releasesUrl" secondary
-            >View releases on GitHub <ArrowUpRight :size="17" /></ActionLink
-        ></template>
-        <div class="install-note">
-          <Check :size="16" /><span
-            >A familiar install: open the DMG, drag Swept to Applications.</span
-          >
-        </div>
-      </div>
+      <ReleaseDownloads :catalog="catalog" />
     </section>
 
     <section

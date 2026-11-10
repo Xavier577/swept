@@ -1,0 +1,118 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Require a stable version tag
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          [[ "$REF_TYPE" == tag && "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo 'Run from a vX.Y.Z tag'; exit 1; }
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+  checks:
+    needs: validate
+    uses: ./.github/workflows/checks.yml
+  package:
+    needs: [validate, checks]
+    runs-on: macos-15
+    timeout-minutes: 45
+    environment: release
+    permissions:
+      contents: write
+    env:
+      SWEPT_VERSION: ${{ needs.validate.outputs.version }}
+      SWEPT_BUILD_NUMBER: ${{ github.run_number }}
+      SWEPT_ARCH: universal
+      APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+      NOTARY_PROFILE: swept-release
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check signing configuration
+        env:
+          CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          for name in CERTIFICATE CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_ID APPLE_TEAM_ID APPLE_APP_PASSWORD; do
+            [[ -n "${!name}" ]] || { echo "Missing $name. See docs/releases.md"; exit 1; }
+          done
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: desktop/go.mod
+          cache-dependency-path: desktop/go.sum
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: desktop/frontend/package-lock.json
+      - run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0
+      - run: desktop/scripts/build.sh
+      - name: Import signing credentials into a temporary keychain
+        env:
+          CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_P12_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          umask 077
+          keychain="$RUNNER_TEMP/swept.keychain-db"
+          password=$(openssl rand -hex 24)
+          echo "::add-mask::$password"
+          printf '%s' "$CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          security create-keychain -p "$password" "$keychain"
+          security set-keychain-settings -lut 7200 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          security import "$RUNNER_TEMP/certificate.p12" -k "$keychain" -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -k "$password" "$keychain" >/dev/null
+          security list-keychains -d user -s "$keychain" login.keychain-db
+          xcrun notarytool store-credentials "$NOTARY_PROFILE" --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD" --keychain "$keychain"
+          security default-keychain -d user -s "$keychain"
+          rm "$RUNNER_TEMP/certificate.p12"
+      - name: Sign, notarize, staple and verify the DMG
+        run: desktop/scripts/package.sh
+      - name: Prepare release notes
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib
+          version = os.environ['SWEPT_VERSION']
+          data = json.loads(pathlib.Path(f'desktop/bin/release/Swept-{version}-universal.json').read_text())
+          pathlib.Path('release-notes.md').write_text(
+              f"Universal build for Apple Silicon and Intel Macs. Targets macOS 13 or later.\n\n"
+              f"Download: {data['downloadBytes']/1024**2:.2f} MiB. Installed files: {data['installedBytes']/1024**2:.2f} MiB.\n\n"
+              "Open the DMG and drag Swept to Applications. Signed with Developer ID and notarized by Apple.\n\n"
+              "The SHA-256 file verifies the download. Review cleanup selections carefully; permanent removal cannot be undone.\n")
+          PY
+      - name: Create a draft release with verified assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          # Do not replace an existing release or its assets on rerun.
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'This release already exists. Review it in GitHub instead of overwriting its assets.'
+            exit 1
+          fi
+          gh release create "$TAG" desktop/bin/release/* --repo "$GITHUB_REPOSITORY" --verify-tag --draft --title "Swept $TAG" --notes-file release-notes.md --generate-notes
+      - name: Remove temporary signing credentials
+        if: always()
+        run: |
+          security default-keychain -d user -s login.keychain-db || true
+          security list-keychains -d user -s login.keychain-db || true
+          security delete-keychain "$RUNNER_TEMP/swept.keychain-db" || true
+          rm -f "$RUNNER_TEMP/certificate.p12"

@@ -13,9 +13,21 @@ The build goes to `web/dist`. Relative asset paths work at the GitHub Pages `/sw
 
 ## Downloads
 
-`src/release.ts` holds the published release URL, version, download size, and verified minimum macOS version. Until those are ready, the page explains that the first public release is being prepared. Do not link local ad-hoc signed test builds as public downloads.
+GitHub Releases is the source of truth. `npm run releases:sync` fetches every published release and writes `src/data/releases.json`. The latest stable release stays recommended even when a newer preview exists. The version history includes previews and versions without a DMG; missing installers never get a download button.
 
-Host the signed, notarized Universal DMG and checksums on GitHub Releases. The website only links to them. The desktop release workflow and signing credentials still need to be configured.
+Buttons link directly to uploaded GitHub DMG assets. File sizes come from the assets. Name installers with `universal`, `arm64`, or `intel` so the page can identify the architecture. Unknown names retain their filename and do not claim compatibility.
+
+The Website workflow syncs before deploying on `main`, a release change, or a manual run. Upload every asset before publishing the release. A failed API request fails the build and leaves the live site intact. No token reaches the browser. Pull requests use the checked-in catalog and separate fixtures.
+
+The Release workflow creates a signed, notarized Universal DMG in a draft release. Publish the reviewed draft through GitHub to update Pages. A workflow publishing with `GITHUB_TOKEN` must explicitly dispatch `pages.yml`; its release event will not start another workflow. See [release setup](../docs/releases.md).
+
+```sh
+npm test              # release pagination, filtering, and API failures
+npm run test:ui       # real browser downloads, empty state, mobile layouts
+npm run format:check
+```
+
+Browser tests use installed Chrome locally and Playwright Chromium in CI. `/e2e/downloads.html` contains clearly labelled sample releases and placeholder downloads. It is excluded from `dist`; never copy it into the public site. The checked-in catalog remains empty until real releases exist.
 
 ## Screenshots
 

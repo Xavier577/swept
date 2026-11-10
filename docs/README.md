@@ -5,6 +5,8 @@ Swept finds storage you can review and remove. Scans are read-only. Cleanup runs
 - [Scanning and classification](scanning.md): where we look, how we measure, and what the labels mean.
 - [Cleanup](cleanup.md): review, deletion checks, protected paths, and managed tools.
 
+- [Builds and releases](releases.md): CI checks, signing setup, DMGs, and publishing.
+
 ## Code structure
 
 Vue handles navigation, selection, and review. Wails connects it to Go. The Go core owns filesystem rules and cleanup.

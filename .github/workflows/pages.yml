@@ -7,19 +7,23 @@ on:
     branches: [main]
     paths: ['web/**', 'desktop/frontend/src/tokens.css', '.github/workflows/pages.yml']
   workflow_dispatch:
+  release:
+    types: [published, edited, deleted, unpublished, released, prereleased]
 
 permissions:
   contents: read
 
 concurrency:
-  group: website-${{ github.ref }}
-  cancel-in-progress: true
+  group: website-${{ github.event_name == 'release' && 'refs/heads/main' || github.ref }}
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'release' && 'main' || github.ref }}
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -27,15 +31,28 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - run: npm ci --no-audit --no-fund
         working-directory: web
+      - run: npm run format:check
+        working-directory: web
+      - run: npm test
+        working-directory: web
+      - run: npx playwright install --with-deps chromium
+        working-directory: web
+      - run: npm run test:ui
+        working-directory: web
+      - run: npm run releases:sync
+        if: github.event_name != 'pull_request'
+        working-directory: web
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - run: npm run build
         working-directory: web
       - uses: actions/upload-pages-artifact@v4
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.event_name == 'release')
         with:
           path: web/dist
 
   deploy:
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.event_name == 'release')
     needs: build
     runs-on: ubuntu-latest
     permissions:

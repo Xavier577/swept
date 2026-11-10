@@ -1074,3 +1074,121 @@ details p {
     min-width: 960px;
   }
 }
+
+.current-release {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.current-release strong,
+.version-info h3 {
+  font-size: 19px;
+  letter-spacing: -0.4px;
+  margin: 0;
+}
+.release-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 7px;
+  border-radius: 5px;
+  color: var(--success);
+  background: var(--success-soft);
+}
+.release-badge--preview {
+  color: var(--warning);
+  background: var(--warning-soft);
+}
+.release-date {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 9px 0 22px;
+}
+.download-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.download-option .action {
+  width: 100%;
+  justify-content: flex-start;
+  font-size: 12px;
+}
+.download-option .action > span {
+  margin-left: auto;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.download-option small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+}
+.release-notes {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--blue);
+  margin-top: 17px;
+}
+.release-notes:hover {
+  text-decoration: underline;
+}
+.version-history {
+  grid-column: 1/-1;
+  border-top: 1px solid var(--line);
+  border-bottom: 0;
+  margin-top: -15px;
+}
+.version-history > summary {
+  padding: 25px 0 0;
+  font-size: 15px;
+}
+.version-history > summary small {
+  font-size: 10px;
+  padding: 3px 7px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  margin-left: 8px;
+}
+.version-history .history-intro {
+  font-size: 12px;
+  margin: 18px 0 30px;
+}
+.version-row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  align-items: start;
+  gap: 28px;
+  padding: 25px 0;
+  border-top: 1px solid var(--line);
+}
+.version-info .release-date {
+  margin: 9px 0 0;
+}
+.version-info .release-notes {
+  margin-top: 10px;
+}
+.version-row:last-child {
+  padding-bottom: 0;
+}
+@media (max-width: 760px) {
+  .version-history {
+    margin-top: 0;
+  }
+  .version-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .version-info h3 {
+    font-size: 17px;
+  }
+  .download-option .action {
+    padding: 13px 12px;
+  }
+}

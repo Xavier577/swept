@@ -9,3 +9,6 @@ desktop/frontend/playwright-report/
 *.log
 
 web/dist/
+
+web/test-results/
+web/playwright-report/

@@ -4,9 +4,15 @@
 
 Swept finds developer caches and generated artifacts, explains what they contain, and lets you review individual items before cleaning. **Clean now permanently removes reviewed files.** Move to Trash is a separate, optional action. Scanning never changes your files.
 
-## Run
+## Download
 
-Requirements: macOS 12+, Go 1.26+, Node.js 22.12+ (or a current LTS), Xcode Command Line Tools, and Wails 3.0.0.
+**[Download Swept for macOS](https://xavier577.github.io/swept)** — see the app in action and choose a version.
+
+Prefer GitHub? [Download directly from GitHub Releases](https://github.com/Xavier577/swept/releases).
+
+## Build from source
+
+Requirements: macOS 13+, Go 1.26+, Node.js 22.12+ (or a current LTS), Xcode Command Line Tools, and Wails 3.0.0.
 
 ```sh
 go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0
@@ -64,7 +70,7 @@ Settings and the latest 50 filesystem cleanup results are stored in `~/Library/A
 
 ## Documentation
 
-See [docs](docs/README.md) for scanning, classification, cleanup, and the current implementation limits.
+See [docs](docs/README.md) for scanning, classification, cleanup, and the current implementation limits. See [builds and releases](docs/releases.md) for CI checks, Universal DMGs, signing, and publishing.
 
 ## Architecture
 
