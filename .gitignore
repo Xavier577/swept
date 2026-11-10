@@ -7,3 +7,5 @@ desktop/frontend/test-results/
 desktop/frontend/playwright-report/
 .task/
 *.log
+
+web/dist/

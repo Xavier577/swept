@@ -102,3 +102,7 @@ Browser tests use an installed Google Chrome and a test-only Vue harness. They c
 ## Branding
 
 See `branding/BRANDING.md`. The design system carries the existing blue/cyan broom identity into both themes, with reusable tokens and primitives. The original purple remains a secondary accent.
+
+## Website
+
+The download page lives in `web/`. Run `npm ci` and `npm run dev` there to preview it. See [web/README.md](web/README.md) for GitHub Pages deployment, screenshots, and release links.
