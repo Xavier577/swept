@@ -46,6 +46,8 @@ jobs:
         run: git diff --exit-code -- frontend/bindings
       - run: npx --prefix frontend playwright install chromium
       - run: npm --prefix frontend test
+      - name: Terminal installer behavior
+        run: python3 scripts/installer_test.py
       - name: Launch the native app
         run: ./scripts/smoke.sh
       - name: Save failure evidence

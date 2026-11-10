@@ -19,7 +19,7 @@ Buttons link directly to uploaded GitHub DMG assets. File sizes come from the as
 
 The Website workflow syncs before deploying on `main` or a manual run. Release events request a new run from `main`, so tag-based releases respect the Pages environment’s branch protection. Upload every asset before publishing the release. A failed API request fails the build and leaves the live site intact. No token reaches the browser. Pull requests use the checked-in catalog and separate fixtures.
 
-Stable tags create a signed, notarized Universal DMG in a draft release. Beta tags create an explicitly unnotarized preview. Files ending in `-unnotarized.dmg` show a launch warning and installation help beside the download. Publish the reviewed draft through GitHub to update Pages. A workflow publishing with `GITHUB_TOKEN` must explicitly dispatch `pages.yml`; its release event will not start another workflow. See [release setup](../docs/releases.md).
+Version tags create draft releases; only beta tags are prereleases. The explicit `MACOS_RELEASE_SIGNING` setting controls notarization independently. Files ending in `-unnotarized.dmg` show a launch warning and installation help beside the download. Publish the reviewed draft through GitHub to update Pages. A workflow publishing with `GITHUB_TOKEN` must explicitly dispatch `pages.yml`; its release event will not start another workflow. See [release setup](../docs/releases.md).
 
 ```sh
 npm test              # release pagination, filtering, and API failures
@@ -36,3 +36,7 @@ Browser tests use installed Chrome locally and Playwright Chromium in CI. `/e2e/
 To refresh the images, start the desktop frontend, open `/e2e/screenshots.html?theme=light`, and use the app's controls to capture Overview, Space explorer, and Cleanup review. Repeat in Dark mode. Keep the screenshots free of personal paths and projects.
 
 Before publishing, check both themes, mobile layout, walkthrough tabs, screenshot expansion, FAQ disclosure, and the download link.
+
+## Terminal installer
+
+The recommended Universal release also has an **Install from Terminal** option. It copies a pinned command, links to the public installer source, and explains the Swept-only security exception for unnotarized builds. The script is served at `/swept/install.sh`. It uses macOS tools, requires interactive confirmation, checks the downloaded DMG before installation, and installs into `~/Applications` without sudo. See [installer behavior and tests](../docs/releases.md#terminal-installation).

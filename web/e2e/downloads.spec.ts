@@ -80,3 +80,31 @@ test("the first preview has a direct download and explains the macOS launch warn
     card.getByRole("link", { name: "Installation help" }),
   ).toHaveAttribute("href", "https://support.apple.com/en-us/102445");
 });
+
+for (const theme of ["light", "dark"]) {
+  test(`terminal install copies the pinned command and explains the exception in ${theme} mode`, async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`/e2e/downloads.html?preview&theme=${theme}`);
+    await page.getByText("Install from Terminal", { exact: true }).click();
+    await expect(
+      page.getByText(/Asks before removing Swept’s quarantine flag/),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Copy install command" }).click();
+    await expect(
+      page.getByRole("button", { name: "Command copied" }),
+    ).toBeVisible();
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      "curl -fsSL https://xavier577.github.io/swept/install.sh | /bin/bash -s -- --version v0.2.0-beta.1 --unnotarized",
+    );
+    await expect(
+      page.getByRole("link", { name: "Read the installer" }),
+    ).toHaveAttribute("href", "https://xavier577.github.io/swept/install.sh");
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+    ).toBeLessThanOrEqual(390);
+  });
+}

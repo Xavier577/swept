@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { ArrowUpRight, Check, ChevronDown, HardDrive } from "@lucide/vue";
 import ActionLink from "./ActionLink.vue";
 import DownloadLinks from "./DownloadLinks.vue";
+import TerminalInstall from "./TerminalInstall.vue";
 import type { ReleaseCatalog } from "../releases";
 
 const props = defineProps<{ catalog: ReleaseCatalog }>();
@@ -14,6 +15,13 @@ const current = computed(
     ) ||
     props.catalog.releases.find((release) => !release.prerelease) ||
     props.catalog.releases[0],
+);
+const installable = computed(() =>
+  current.value?.downloads.find(
+    (file) =>
+      file.architecture === "universal" &&
+      /^v[0-9]+\.[0-9]+\.[0-9]+(-beta\.[1-9][0-9]*)?$/.test(current.value.tag),
+  ),
 );
 function date(value: string) {
   return new Intl.DateTimeFormat("en", {
@@ -46,6 +54,11 @@ function date(value: string) {
       </div>
       <p class="release-date">Released {{ date(current.publishedAt) }}</p>
       <DownloadLinks :downloads="current.downloads" :version="current.tag" />
+      <TerminalInstall
+        v-if="installable"
+        :version="current.tag"
+        :unnotarized="installable.unnotarized"
+      />
       <a class="release-notes" :href="current.notesUrl"
         >What’s new <ArrowUpRight :size="13"
       /></a>

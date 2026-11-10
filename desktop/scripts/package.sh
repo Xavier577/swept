@@ -1,9 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-# Stable releases require notarization. Preview and local packages are explicit modes.
+# Notarization and release status are separate. Unnotarized packaging is explicit.
 mode=${1:-release}
-[[ "$mode" == release || "$mode" == --preview || "$mode" == --local ]] || { echo "Usage: $0 [release|--preview|--local]" >&2; exit 1; }
+[[ "$mode" == release || "$mode" == --preview || "$mode" == --unnotarized || "$mode" == --local ]] || { echo "Usage: $0 [release|--unnotarized|--preview|--local]" >&2; exit 1; }
 version=${SWEPT_VERSION:?Set SWEPT_VERSION, e.g. 0.2.0}
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Version must be X.Y.Z" >&2; exit 1; }
 app=bin/Swept.app
@@ -14,14 +14,14 @@ lipo "$app/Contents/MacOS/Swept" -verify_arch arm64 x86_64
 label=${SWEPT_RELEASE_TAG:-v$version}
 if [[ "$mode" == --preview ]]; then
   [[ "$label" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-beta\.[1-9][0-9]*$ && "${label%%-beta.*}" == "v$version" ]] || { echo "Preview requires SWEPT_RELEASE_TAG=v$version-beta.N" >&2; exit 1; }
-elif [[ "$label" != "v$version" ]]; then
-  echo "Stable/local packages require SWEPT_RELEASE_TAG=v$version" >&2
+elif [[ "${label%%-beta.*}" != "v$version" || ! "$label" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-beta\.[1-9][0-9]*)?$ ]]; then
+  echo "Release tag must match v$version" >&2
   exit 1
 fi
 name="Swept-${label#v}-universal"
 if [[ "$mode" == --local ]]; then
   name="$name-local-test"
-elif [[ "$mode" == --preview ]]; then
+elif [[ "$mode" == --preview || "$mode" == --unnotarized ]]; then
   name="$name-unnotarized"
 else
   : "${APPLE_SIGNING_IDENTITY:?Set Developer ID Application signing identity}"
@@ -32,10 +32,10 @@ mkdir -p bin/release
 stage=$(mktemp -d "${TMPDIR:-/tmp}/swept-package.XXXXXX")
 trap 'rm -rf "$stage"' EXIT
 ditto "$app" "$stage/Swept.app"
-codesign --verify --deep --strict "$stage/Swept.app"
-if [[ "$mode" == --preview ]]; then
+codesign --verify --all-architectures --deep --strict "$stage/Swept.app"
+if [[ "$mode" == --preview || "$mode" == --unnotarized ]]; then
   cat > "$stage/READ ME.txt" <<'NOTE'
-Swept preview — not notarized by Apple
+Swept — not notarized by Apple
 
 Drag Swept to Applications, then open it. macOS may block the first launch.
 If you trust this download, use System Settings > Privacy & Security > Open Anyway.
@@ -50,7 +50,7 @@ NOTE
 fi
 if [[ "$mode" == release ]]; then
   codesign --force --options runtime --timestamp --sign "$APPLE_SIGNING_IDENTITY" "$stage/Swept.app"
-  codesign --verify --deep --strict "$stage/Swept.app"
+  codesign --verify --all-architectures --deep --strict "$stage/Swept.app"
   ditto -c -k --keepParent "$stage/Swept.app" "$stage/notarize.zip"
   xcrun notarytool submit "$stage/notarize.zip" --keychain-profile "$NOTARY_PROFILE" --wait --output-format json > "$stage/notary.json"
   python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); print("App notarization:",r["status"]); sys.exit(r["status"] != "Accepted")' "$stage/notary.json"
@@ -78,7 +78,7 @@ import json, os, pathlib, sys
 file, app, version, mode = sys.argv[1:]
 size = os.path.getsize(file)
 installed = sum(p.stat().st_size for p in pathlib.Path(app).rglob('*') if p.is_file())
-metadata = dict(version=version, architecture='universal', minimumMacOS='13.0', notarized=mode=='release', channel='preview' if mode=='--preview' else mode, downloadBytes=size, installedBytes=installed)
+metadata = dict(version=version, architecture='universal', minimumMacOS='13.0', notarized=mode=='release', channel='preview' if '-beta.' in version else ('local' if mode=='--local' else 'release'), downloadBytes=size, installedBytes=installed)
 pathlib.Path(file).with_suffix('.json').write_text(json.dumps(metadata, indent=2)+'\n')
 print(f'DMG: {size / 1024**2:.2f} MiB; installed files: {installed / 1024**2:.2f} MiB')
 PYTHON

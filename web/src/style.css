@@ -1202,3 +1202,65 @@ details p {
 .download-warning a {
   text-decoration: underline;
 }
+
+.terminal-install {
+  margin-top: 20px;
+  padding-block: 18px;
+  border-block: 1px solid var(--border);
+  text-align: left;
+}
+.terminal-install summary {
+  justify-content: flex-start;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+.terminal-install p {
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 14px 0 0;
+}
+.terminal-install[open] summary svg {
+  transform: none;
+}
+.terminal-install summary .terminal-chevron {
+  margin-left: auto;
+}
+.terminal-install[open] summary .terminal-chevron {
+  transform: rotate(180deg);
+}
+.install-command {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--paper);
+}
+.install-command code {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  line-height: 1.7;
+  user-select: all;
+}
+.install-command button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+.terminal-install a {
+  text-decoration: underline;
+}

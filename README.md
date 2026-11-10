@@ -22,7 +22,7 @@ cd desktop
 open bin/Swept.app
 ```
 
-The build produces an ad-hoc signed local app. Copy it to Applications if desired. Stable notarized releases require an Apple Developer signing identity. Preview releases are explicitly labelled as unnotarized and may need macOS approval on first launch. This repository does not contain signing credentials.
+The build produces an ad-hoc signed local app. Copy it to Applications if desired. Stable notarized releases require an Apple Developer signing identity. Unnotarized releases show a first-launch notice. The download page also offers a verified Terminal installer that asks before making a Swept-only security exception. This repository does not contain signing credentials.
 
 For development, build once, then run `wails3 dev`. Go services generate TypeScript bindings; do not hand-edit `frontend/bindings`.
 
